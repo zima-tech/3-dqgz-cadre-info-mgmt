@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  password    String
+  name        String
+  department  String
+  role        String
+  status      String
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  module     String
+  action     String
+  objectType String
+  objectId   String?
+  operator   String
+  result     String
+  summary    String
+  createdAt  DateTime @default(now())
+}
+
+model SystemSetting {
+  id          String   @id @default(cuid())
+  groupName   String
+  key         String   @unique
+  value       String
+  type        String
+  enabled     Boolean  @default(true)
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CadreProfile {
+  id              String            @id @default(cuid())
+  name            String
+  gender          String
+  ethnicity       String
+  birthDate       DateTime?
+  politicalStatus String
+  partyJoinDate   DateTime?
+  workStartDate   DateTime?
+  idNumber        String
+  mobile          String
+  organization    String
+  duty            String
+  positionLevel   String
+  education       String
+  cadreStatus     String
+  sourceVersion   String
+  updatedBy       String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  issues          DataQualityIssue[]
+  reminders       UpdateReminder[]
+}
+
+model ImportBatch {
+  id            String       @id @default(cuid())
+  batchName     String
+  sourceDept    String
+  importTime    DateTime
+  importedCount Int
+  verifiedCount Int
+  diffCount     Int
+  status        String
+  summary       String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  diffs         ImportDiff[]
+}
+
+model ImportDiff {
+  id           String      @id @default(cuid())
+  batchId      String
+  batch        ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  cadreName    String
+  fieldName    String
+  oldValue     String
+  newValue     String
+  diffType     String
+  reviewStatus String
+  suggestion   String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model DataQualityIssue {
+  id            String        @id @default(cuid())
+  cadreId       String?
+  cadre         CadreProfile? @relation(fields: [cadreId], references: [id], onDelete: SetNull)
+  issueCategory String
+  issueType     String
+  severity      String
+  fieldName     String?
+  currentValue  String
+  suggestion    String
+  status        String
+  sourceStage   String
+  resolution    String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model UpdateReminder {
+  id            String        @id @default(cuid())
+  cadreId       String?
+  cadre         CadreProfile? @relation(fields: [cadreId], references: [id], onDelete: SetNull)
+  reminderType  String
+  triggerEvent  String
+  reminderLevel String
+  dueDate       DateTime
+  status        String
+  summary       String
+  nextAction    String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model CadreConversation {
+  id        String   @id @default(cuid())
+  scene     String
+  role      String
+  stage     String
+  content   String
+  createdAt DateTime @default(now())
+}

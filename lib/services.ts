@@ -1,0 +1,80 @@
+import { prisma } from '@/lib/prisma';
+
+export async function writeAuditLog(params: {
+  module: string;
+  action: string;
+  objectType: string;
+  objectId?: string;
+  summary: string;
+  result?: string;
+}) {
+  await prisma.auditLog.create({
+    data: {
+      module: params.module,
+      action: params.action,
+      objectType: params.objectType,
+      objectId: params.objectId,
+      operator: 'admin',
+      result: params.result || '成功',
+      summary: params.summary
+    }
+  });
+}
+
+export async function getCadreSnapshot() {
+  const [profiles, importBatches, importDiffs, issues, reminders, conversations, logs] = await Promise.all([
+    prisma.cadreProfile.findMany({
+      orderBy: [{ organization: 'asc' }, { name: 'asc' }]
+    }),
+    prisma.importBatch.findMany({
+      orderBy: { importTime: 'desc' }
+    }),
+    prisma.importDiff.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { batch: true }
+    }),
+    prisma.dataQualityIssue.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        cadre: {
+          select: {
+            id: true,
+            name: true,
+            organization: true,
+            duty: true
+          }
+        }
+      }
+    }),
+    prisma.updateReminder.findMany({
+      orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+      include: {
+        cadre: {
+          select: {
+            id: true,
+            name: true,
+            organization: true,
+            duty: true
+          }
+        }
+      }
+    }),
+    prisma.cadreConversation.findMany({
+      orderBy: { createdAt: 'asc' }
+    }),
+    prisma.auditLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 30
+    })
+  ]);
+
+  return {
+    profiles,
+    importBatches,
+    importDiffs,
+    issues,
+    reminders,
+    conversations,
+    logs
+  };
+}
