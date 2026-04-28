@@ -6,7 +6,7 @@ import type { MenuProps } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-const items: MenuProps['items'] = [
+const items: NonNullable<MenuProps['items']> = [
   { key: '/dashboard', icon: <DashboardOutlined />, label: '工作概览' },
   { key: '/profiles', icon: <TableOutlined />, label: '人员台账' },
   { key: '/verification', icon: <CheckSquareOutlined />, label: '自动核验' },
@@ -19,19 +19,42 @@ const items: MenuProps['items'] = [
   { key: '/settings', icon: <SettingOutlined />, label: '系统设置' }
 ];
 
+const adminOnlyKeys = new Set(['/users', '/audit-logs', '/settings']);
+
 export function DashboardShell({
   children,
   title,
-  description
+  description,
+  currentUser
 }: {
   children: React.ReactNode;
   title: string;
   description: string;
+  currentUser: {
+    username: string;
+    name: string;
+    role: string;
+  };
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const { message } = App.useApp();
+
+  const visibleItems =
+    currentUser.role === '管理员'
+      ? items
+      : items.filter((item) => {
+          if (!item) {
+            return false;
+          }
+
+          if ('type' in item && item.type === 'divider') {
+            return false;
+          }
+
+          return !('key' in item) || !adminOnlyKeys.has(String(item.key));
+        });
 
   async function logout() {
     setLoggingOut(true);
@@ -59,7 +82,7 @@ export function DashboardShell({
           theme="dark"
           mode="inline"
           selectedKeys={[pathname || '/dashboard']}
-          items={items}
+          items={visibleItems}
           style={{ background: 'transparent', borderInlineEnd: 'none' }}
           onClick={({ key }) => router.push(key)}
         />
@@ -73,8 +96,9 @@ export function DashboardShell({
             <Typography.Text className="muted">{description}</Typography.Text>
           </div>
           <Space>
-            <Tag color="processing">演示账号：admin</Tag>
-            <Avatar style={{ backgroundColor: '#1358db' }}>管</Avatar>
+            <Tag color="processing">{currentUser.role}</Tag>
+            <Tag>{currentUser.username}</Tag>
+            <Avatar style={{ backgroundColor: '#1358db' }}>{currentUser.name.slice(0, 1)}</Avatar>
             <Button icon={<LogoutOutlined />} onClick={logout} loading={loggingOut}>
               退出登录
             </Button>
