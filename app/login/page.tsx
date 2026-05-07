@@ -1,5 +1,5 @@
-import { BellOutlined, CheckCircleOutlined, SafetyOutlined } from '@ant-design/icons';
-import { Card, Col, Row, Space, Tag } from 'antd';
+import { BellOutlined, CheckCircleOutlined, DatabaseOutlined, SafetyOutlined, TeamOutlined, WarningOutlined } from '@ant-design/icons';
+import { Space, Tag } from 'antd';
 import { redirect } from 'next/navigation';
 
 import { LoginForm } from '@/components/ui/login-form';
@@ -16,40 +16,33 @@ export default async function LoginPage() {
     <div className="login-screen">
       <div className="login-card">
         <div className="login-cover">
-          <Tag color="blue" style={{ marginBottom: 18 }}>
-            党群工作部
-          </Tag>
-          <h1 style={{ color: '#fff', marginTop: 0, marginBottom: 18, fontSize: 40, lineHeight: 1.2 }}>
-            党员、干部信息智能管理
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.82)', fontSize: 16, lineHeight: 1.8 }}>
-            面向党员和干部信息台账治理场景，覆盖自动核验、重复清洗、完整性检查和动态更新提醒的业务化工作台。
-          </p>
-          <Row gutter={[16, 16]} style={{ marginTop: 28 }}>
+          <div className="login-cover-topline">
+            <Tag color="blue">党群工作部</Tag>
+            <span>Cadre Data Governance</span>
+          </div>
+          <h1>党员、干部信息智能管理</h1>
+          <p>面向党员和干部信息台账治理，覆盖导入核验、重复清洗、完整性检查、变动提醒与管理留痕。</p>
+          <div className="login-metric-grid">
+            <div><strong>80</strong><span>条台账快照上限</span></div>
+            <div><strong>NLP</strong><span>同音异字与异常识别</span></div>
+            <div><strong>闭环</strong><span>核验、提醒、复核留痕</span></div>
+          </div>
+          <div className="login-capability-list">
             {[
-              ['自动核验', '对接导入批次与存量台账，自动比对差异字段并形成核验清单。'],
-              ['重复清洗', '识别姓名同音、身份证异常、组织关系重复等高风险重复数据。'],
-              ['动态提醒', '围绕岗位变动、联系方式缺失、党籍状态变化等事项触发更新提醒。']
-            ].map(([title, description]) => (
-              <Col span={24} key={title}>
-                <Card
-                  style={{ background: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.16)' }}
-                  bodyStyle={{ padding: 18 }}
-                >
-                  <Space align="start">
-                    <CheckCircleOutlined style={{ color: '#d6ebff', marginTop: 3 }} />
-                    <div>
-                      <h3 style={{ color: '#fff', marginTop: 0, marginBottom: 8 }}>{title}</h3>
-                      <p style={{ color: 'rgba(255,255,255,0.76)', marginBottom: 0, lineHeight: 1.7 }}>{description}</p>
-                    </div>
-                  </Space>
-                </Card>
-              </Col>
+              [<DatabaseOutlined key="verify" />, '信息自动核验', '导入批次与存量台账自动比对，标记身份证、组织、联系方式等差异项。'],
+              [<SafetyOutlined key="clean" />, '重复数据清理', '识别姓名同音不同字、证件号异常、组织关系重复等高风险问题。'],
+              [<BellOutlined key="remind" />, '动态更新提醒', '围绕信息缺失、状态变动和待复核事项生成提醒清单。']
+            ].map(([icon, title, description]) => (
+              <div className="login-capability" key={String(title)}>
+                <span>{icon}</span>
+                <div><strong>{title}</strong><p>{description}</p></div>
+                <CheckCircleOutlined />
+              </div>
             ))}
-          </Row>
-          <Space size="large" style={{ marginTop: 32, color: 'rgba(255,255,255,0.82)' }}>
-            <Space><SafetyOutlined /> 数据核验</Space>
-            <Space><BellOutlined /> 智能提醒</Space>
+          </div>
+          <Space className="login-cover-footer" size="large">
+            <Space><TeamOutlined /> 人员台账</Space>
+            <Space><WarningOutlined /> 差异预警</Space>
           </Space>
         </div>
         <div className="login-form-panel">

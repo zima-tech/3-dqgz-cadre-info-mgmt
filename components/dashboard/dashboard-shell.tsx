@@ -87,7 +87,8 @@ export function DashboardShell({
   }
 
   return (
-    <Layout className="dashboard-layout">
+    <Layout className={`dashboard-layout${isNavigating ? ' is-navigating' : ''}`}>
+      <div className="route-progress" />
       <aside className="dashboard-sidebar">
         <div className="dashboard-brand">
           <Tag color="blue" style={{ marginBottom: 12 }}>

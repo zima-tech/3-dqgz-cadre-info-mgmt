@@ -28,17 +28,21 @@ export async function writeAuditLog(params: {
 export async function getCadreSnapshot() {
   const [profiles, importBatches, importDiffs, issues, reminders, conversations, logs] = await Promise.all([
     prisma.cadreProfile.findMany({
-      orderBy: [{ organization: 'asc' }, { name: 'asc' }]
+      orderBy: [{ organization: 'asc' }, { name: 'asc' }],
+      take: 80
     }),
     prisma.importBatch.findMany({
-      orderBy: { importTime: 'desc' }
+      orderBy: { importTime: 'desc' },
+      take: 30
     }),
     prisma.importDiff.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 80,
       include: { batch: true }
     }),
     prisma.dataQualityIssue.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 80,
       include: {
         cadre: {
           select: {
@@ -52,6 +56,7 @@ export async function getCadreSnapshot() {
     }),
     prisma.updateReminder.findMany({
       orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+      take: 80,
       include: {
         cadre: {
           select: {
@@ -64,11 +69,12 @@ export async function getCadreSnapshot() {
       }
     }),
     prisma.cadreConversation.findMany({
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'asc' },
+      take: 80
     }),
     prisma.auditLog.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 30
+      take: 12
     })
   ]);
 
